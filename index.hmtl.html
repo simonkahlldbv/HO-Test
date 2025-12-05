@@ -7,42 +7,111 @@
 
 <style>
 body {
+  margin: 0;
+  display: flex;
+  height: 100vh;
   font-family: Arial, sans-serif;
-  background: #f2f2f2;
 }
 
-#model-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
+/* Sidebar */
+#sidebar {
+  width: 220px;
+  background: #1e1e1e;
+  color: white;
+  display: flex;
+  flex-direction: column;
   padding: 20px;
 }
 
-.model-box {
-  background: white;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  text-align: center;
+.year-btn {
+  background: #333;
+  color: white;
+  padding: 12px;
+  border: none;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
 }
 
-.compare-btn {
-  margin-top: 10px;
-  padding: 10px 15px;
-  border: none;
+.year-btn:hover {
+  background: #555;
+}
+
+/* Vergleichsbutton unten */
+#compare-start {
+  margin-top: auto;
+  padding: 14px;
+  font-size: 16px;
   background: #0066ff;
   color: white;
+  border: none;
   border-radius: 6px;
   cursor: pointer;
 }
 
+#compare-start:hover {
+  background: #0050cc;
+}
+
+/* Hauptbereich */
+#main-viewer {
+  flex: 1;
+  background: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#main-viewer model-viewer {
+  width: 80%;
+  height: 80%;
+}
+
+/* Vergleichs-Auswahl-Overlay */
+#compare-select {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+#compare-box {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 350px;
+  text-align: center;
+}
+
+select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+}
+
+#start-compare-btn {
+  padding: 12px;
+  width: 100%;
+  background: #0066ff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+
+/* Slider-Vergleich */
 #compare-wrapper {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #000000d9;
   display: none;
   z-index: 9999;
 }
@@ -55,34 +124,70 @@ body {
   overflow: hidden;
 }
 
-#compare-left {
-  left: 0;
-  width: 50%;
-}
-
-#compare-right {
-  right: 0;
-  width: 50%;
-}
+#compare-left { left: 0; width: 50%; }
+#compare-right { right: 0; width: 50%; }
 
 #compare-slider {
   position: absolute;
   top: 0;
-  width: 4px;
   height: 100%;
+  width: 4px;
   background: red;
   cursor: ew-resize;
-  z-index: 10000;
   left: 50%;
+  z-index: 10000;
 }
 </style>
 </head>
 <body>
 
-<h2 style="text-align:center;margin-top:20px;">3D Modellübersicht</h2>
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <h3>Modelle</h3>
 
-<div id="model-list"></div>
+  <button class="year-btn" onclick="showModel('1150.glb')">1150</button>
+  <button class="year-btn" onclick="showModel('1175.glb')">1175</button>
+  <button class="year-btn" onclick="showModel('1374.glb')">1374</button>
+  <button class="year-btn" onclick="showModel('1550.glb')">1550</button>
+  <button class="year-btn" onclick="showModel('1630.glb')">1630</button>
+  <button class="year-btn" onclick="showModel('1936.glb')">1936</button>
 
+  <button id="compare-start" onclick="openCompareSelection()">Vergleichen</button>
+</div>
+
+<!-- MAIN VIEWER -->
+<div id="main-viewer">
+  <model-viewer id="main-model" camera-controls auto-rotate></model-viewer>
+</div>
+
+<!-- VERGLEICHS-AUSWAHL POPUP -->
+<div id="compare-select">
+  <div id="compare-box">
+    <h3>Modelle vergleichen</h3>
+
+    <select id="modelA">
+      <option value="1150.glb">1150</option>
+      <option value="1175.glb">1175</option>
+      <option value="1374.glb">1374</option>
+      <option value="1550.glb">1550</option>
+      <option value="1630.glb">1630</option>
+      <option value="1936.glb">1936</option>
+    </select>
+
+    <select id="modelB">
+      <option value="1150.glb">1150</option>
+      <option value="1175.glb">1175</option>
+      <option value="1374.glb">1374</option>
+      <option value="1550.glb">1550</option>
+      <option value="1630.glb">1630</option>
+      <option value="1936.glb">1936</option>
+    </select>
+
+    <button id="start-compare-btn" onclick="startComparison()">Starten</button>
+  </div>
+</div>
+
+<!-- VERGLEICHS-SLIDER -->
 <div id="compare-wrapper">
   <model-viewer id="compare-left"></model-viewer>
   <model-viewer id="compare-right"></model-viewer>
@@ -90,92 +195,50 @@ body {
 </div>
 
 <script>
-/* --------------------------
-   MODEL-LISTE (ANPASSBAR)
----------------------------*/
-
-const models = [
-  "1150.glb",
-  "1175.glb",
-  "1374.glb",
-  "1550.glb",
-  "1630.glb",
-  "1936.glb"
-];
-
-/* --------------------------
-   MODELLE AUTOMATISCH LADEN
----------------------------*/
-
-const list = document.getElementById("model-list");
-
-models.forEach(model => {
-  list.innerHTML += `
-    <div class="model-box">
-      <model-viewer src="${model}" camera-controls auto-rotate></model-viewer>
-      <button class="compare-btn" onclick="selectModel('${model}')">Vergleichen</button>
-    </div>
-  `;
-});
-
-/* --------------------------
-   MODELLAUSWAHL & VERGLEICH
----------------------------*/
-
-let selectedModels = [];
-
-function selectModel(name) {
-  selectedModels.push(name);
-
-  if (selectedModels.length === 2) {
-    startComparison(selectedModels[0], selectedModels[1]);
-    selectedModels = [];
-  }
+/* ---- Modell in der Mitte anzeigen ---- */
+function showModel(file) {
+  document.getElementById("main-model").src = file;
 }
 
-function startComparison(modelA, modelB) {
-  const wrap = document.getElementById("compare-wrapper");
-  wrap.style.display = "block";
-
-  document.getElementById("compare-left").src = modelA;
-  document.getElementById("compare-right").src = modelB;
+/* ---- Vergleichsauswahl öffnen ---- */
+function openCompareSelection() {
+  document.getElementById("compare-select").style.display = "flex";
 }
 
-/* --------------------------
-   SLIDER LOGIK
----------------------------*/
+/* ---- Vergleich starten ---- */
+function startComparison() {
+  document.getElementById("compare-select").style.display = "none";
 
+  const A = document.getElementById("modelA").value;
+  const B = document.getElementById("modelB").value;
+
+  document.getElementById("compare-wrapper").style.display = "block";
+
+  document.getElementById("compare-left").src = A;
+  document.getElementById("compare-right").src = B;
+}
+
+/* ---- Slider Logik ---- */
 const slider = document.getElementById("compare-slider");
 let dragging = false;
 
-slider.addEventListener("mousedown", () => dragging = true);
-window.addEventListener("mouseup", () => dragging = false);
-window.addEventListener("mousemove", (e) => moveSlider(e));
-
-function moveSlider(e) {
+slider.onmousedown = () => dragging = true;
+window.onmouseup = () => dragging = false;
+window.onmousemove = (e) => {
   if (!dragging) return;
 
-  let x = e.clientX;
-  const wrap = document.getElementById("compare-wrapper");
-  const rect = wrap.getBoundingClientRect();
-
-  let pos = x - rect.left;
-  pos = Math.max(50, Math.min(rect.width - 50, pos));
-
+  const pos = Math.min(window.innerWidth - 50, Math.max(50, e.clientX));
   slider.style.left = pos + "px";
   document.getElementById("compare-left").style.width = pos + "px";
-  document.getElementById("compare-right").style.width = (rect.width - pos) + "px";
-}
+  document.getElementById("compare-right").style.width = (window.innerWidth - pos) + "px";
+};
 
-/* --------------------------
-   ESC ZUM SCHLIESSEN
----------------------------*/
+/* ESC schließt Vergleich */
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     document.getElementById("compare-wrapper").style.display = "none";
   }
 });
 </script>
-
 </body>
 </html>
