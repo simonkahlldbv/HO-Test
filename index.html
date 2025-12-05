@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>3D Modellvergleich</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+}
+
+#model-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.model-box {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.compare-btn {
+  margin-top: 10px;
+  padding: 10px 15px;
+  border: none;
+  background: #0066ff;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#compare-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000000d9;
+  display: none;
+  z-index: 9999;
+}
+
+#compare-left,
+#compare-right {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+#compare-left {
+  left: 0;
+  width: 50%;
+}
+
+#compare-right {
+  right: 0;
+  width: 50%;
+}
+
+#compare-slider {
+  position: absolute;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: red;
+  cursor: ew-resize;
+  z-index: 10000;
+  left: 50%;
+}
+</style>
+</head>
+<body>
+
+<h2 style="text-align:center;margin-top:20px;">3D Modellübersicht</h2>
+
+<div id="model-list"></div>
+
+<div id="compare-wrapper">
+  <model-viewer id="compare-left"></model-viewer>
+  <model-viewer id="compare-right"></model-viewer>
+  <div id="compare-slider"></div>
+</div>
+
+<script>
+/* --------------------------
+   MODEL-LISTE (ANPASSBAR)
+---------------------------*/
+
+const models = [
+  "1150.glb",
+  "1175.glb",
+  "1374.glb",
+  "1550.glb",
+  "1630.glb",
+  "1936.glb"
+];
+
+/* --------------------------
+   MODELLE AUTOMATISCH LADEN
+---------------------------*/
+
+const list = document.getElementById("model-list");
+
+models.forEach(model => {
+  list.innerHTML += `
+    <div class="model-box">
+      <model-viewer src="${model}" camera-controls auto-rotate></model-viewer>
+      <button class="compare-btn" onclick="selectModel('${model}')">Vergleichen</button>
+    </div>
+  `;
+});
+
+/* --------------------------
+   MODELLAUSWAHL & VERGLEICH
+---------------------------*/
+
+let selectedModels = [];
+
+function selectModel(name) {
+  selectedModels.push(name);
+
+  if (selectedModels.length === 2) {
+    startComparison(selectedModels[0], selectedModels[1]);
+    selectedModels = [];
+  }
+}
+
+function startComparison(modelA, modelB) {
+  const wrap = document.getElementById("compare-wrapper");
+  wrap.style.display = "block";
+
+  document.getElementById("compare-left").src = modelA;
+  document.getElementById("compare-right").src = modelB;
+}
+
+/* --------------------------
+   SLIDER LOGIK
+---------------------------*/
+
+const slider = document.getElementById("compare-slider");
+let dragging = false;
+
+slider.addEventListener("mousedown", () => dragging = true);
+window.addEventListener("mouseup", () => dragging = false);
+window.addEventListener("mousemove", (e) => moveSlider(e));
+
+function moveSlider(e) {
+  if (!dragging) return;
+
+  let x = e.clientX;
+  const wrap = document.getElementById("compare-wrapper");
+  const rect = wrap.getBoundingClientRect();
+
+  let pos = x - rect.left;
+  pos = Math.max(50, Math.min(rect.width - 50, pos));
+
+  slider.style.left = pos + "px";
+  document.getElementById("compare-left").style.width = pos + "px";
+  document.getElementById("compare-right").style.width = (rect.width - pos) + "px";
+}
+
+/* --------------------------
+   ESC ZUM SCHLIESSEN
+---------------------------*/
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    document.getElementById("compare-wrapper").style.display = "none";
+  }
+});
+</script>
+
+</body>
+</html>
