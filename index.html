@@ -91,19 +91,6 @@ html, body {
   z-index: 2000;
 }
 
-#reset-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: black;
-  color: white;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  z-index: 2000;
-}
-
 .selector {
   position: absolute;
   top: 50%;
@@ -182,7 +169,6 @@ model-viewer::part(default-controls) {
 
 <div id="compare">
   <button id="back">← Zurück</button>
-  <button id="reset-btn">Ausgangslage</button>
 
   <div id="sel-left" class="selector">
     <button onclick="mvA.src='1150.glb'">1150</button>
@@ -235,12 +221,6 @@ document.getElementById("compare-btn").onclick = () => {
   if (!mvB.src) mvB.src = "1936.glb";
 
   // Kamera einmalig auf Startposition setzen
-  mvA.cameraOrbit = initialOrbit;
-  mvB.cameraOrbit = initialOrbit;
-};
-
-// Ausgangslage: Kamera auf Startposition zurücksetzen, Modelle bleiben in der Mitte
-document.getElementById("reset-btn").onclick = () => {
   mvA.cameraOrbit = initialOrbit;
   mvB.cameraOrbit = initialOrbit;
 };
