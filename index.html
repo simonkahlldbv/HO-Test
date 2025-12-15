@@ -225,25 +225,22 @@ mainModel.src = "1150.glb";
 function setMain(f) { mainModel.src = f; }
 
 const initialOrbit = "0deg 75deg 2.8m";
-let isFirstCompare = true;
 
+// Vergleichsmodus öffnen
 document.getElementById("compare-btn").onclick = () => {
   compare.style.display = "block";
 
-  if (isFirstCompare) {
-    mvA.src = "1150.glb";
-    mvB.src = "1936.glb";
-    mvA.cameraOrbit = initialOrbit;
-    mvB.cameraOrbit = initialOrbit;
-    isFirstCompare = false;
-  }
+  // Modelle nur laden, falls noch leer
+  if (!mvA.src) mvA.src = "1150.glb";
+  if (!mvB.src) mvB.src = "1936.glb";
+
+  // Kamera einmalig auf Startposition setzen
+  mvA.cameraOrbit = initialOrbit;
+  mvB.cameraOrbit = initialOrbit;
 };
 
-// Ausgangslage: wie "Vergleichen"
+// Ausgangslage: Kamera auf Startposition zurücksetzen, Modelle bleiben in der Mitte
 document.getElementById("reset-btn").onclick = () => {
-  compare.style.display = "block";
-  mvA.src = "1150.glb";
-  mvB.src = "1936.glb";
   mvA.cameraOrbit = initialOrbit;
   mvB.cameraOrbit = initialOrbit;
 };
