@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -91,6 +91,19 @@ html, body {
   z-index: 2000;
 }
 
+#reset-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: black;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 2000;
+}
+
 .selector {
   position: absolute;
   top: 50%;
@@ -169,6 +182,7 @@ model-viewer::part(default-controls) {
 
 <div id="compare">
   <button id="back">← Zurück</button>
+  <button id="reset-btn">Ausgangslage</button>
 
   <div id="sel-left" class="selector">
     <button onclick="mvA.src='1150.glb'">1150</button>
@@ -210,17 +224,34 @@ mainModel.src = "1150.glb";
 
 function setMain(f) { mainModel.src = f; }
 
+const initialOrbit = "0deg 75deg 2.8m";
+let isFirstCompare = true;
+
 document.getElementById("compare-btn").onclick = () => {
   compare.style.display = "block";
-  mvA.src = "1150.glb";
-  mvB.src = "1936.glb";
-  const orbit = "0deg 75deg 2.8m";
-  mvA.cameraOrbit = orbit;
-  mvB.cameraOrbit = orbit;
+
+  if (isFirstCompare) {
+    mvA.src = "1150.glb";
+    mvB.src = "1936.glb";
+    mvA.cameraOrbit = initialOrbit;
+    mvB.cameraOrbit = initialOrbit;
+    isFirstCompare = false;
+  }
 };
 
 document.getElementById("back").onclick = () => {
   compare.style.display = "none";
+};
+
+/* Ausgangslage zurücksetzen */
+document.getElementById("reset-btn").onclick = () => {
+  mvA.cameraOrbit = initialOrbit;
+  mvA.cameraTarget = "0m 0m 0m";
+  mvA.fieldOfView = "45deg";
+
+  mvB.cameraOrbit = initialOrbit;
+  mvB.cameraTarget = "0m 0m 0m";
+  mvB.fieldOfView = "45deg";
 };
 
 /* Slider */
@@ -242,9 +273,7 @@ let syncing = false;
 function sync(from, to) {
   if (syncing) return;
   syncing = true;
-  to.cameraOrbit = from.cameraOrbit;
-  to.cameraTarget = from.cameraTarget;
-  to.fieldOfView = from.fieldOfView;
+  // Kamera nur synchronisieren, ohne die Benutzerbewegung zu überschreiben
   requestAnimationFrame(() => syncing = false);
 }
 
