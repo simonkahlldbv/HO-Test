@@ -239,19 +239,17 @@ document.getElementById("compare-btn").onclick = () => {
   }
 };
 
-document.getElementById("back").onclick = () => {
-  compare.style.display = "none";
+// Ausgangslage: wie "Vergleichen"
+document.getElementById("reset-btn").onclick = () => {
+  compare.style.display = "block";
+  mvA.src = "1150.glb";
+  mvB.src = "1936.glb";
+  mvA.cameraOrbit = initialOrbit;
+  mvB.cameraOrbit = initialOrbit;
 };
 
-/* Ausgangslage zurücksetzen */
-document.getElementById("reset-btn").onclick = () => {
-  mvA.cameraOrbit = initialOrbit;
-  mvA.cameraTarget = "0m 0m 0m";
-  mvA.fieldOfView = "45deg";
-
-  mvB.cameraOrbit = initialOrbit;
-  mvB.cameraTarget = "0m 0m 0m";
-  mvB.fieldOfView = "45deg";
+document.getElementById("back").onclick = () => {
+  compare.style.display = "none";
 };
 
 /* Slider */
@@ -273,7 +271,6 @@ let syncing = false;
 function sync(from, to) {
   if (syncing) return;
   syncing = true;
-  // Kamera nur synchronisieren, ohne die Benutzerbewegung zu überschreiben
   requestAnimationFrame(() => syncing = false);
 }
 
