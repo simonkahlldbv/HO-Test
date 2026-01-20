@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>3D Modellvergleich – Three.js</title>
+<title>3D Modellvergleich</title>
 
 <style>
 html, body {
@@ -23,7 +23,7 @@ html, body {
   color: white;
   padding: 20px;
   box-sizing: border-box;
-  z-index: 100; /* 🔥 wichtig */
+  z-index: 10;
 }
 
 button {
@@ -37,32 +37,59 @@ button {
   cursor: pointer;
 }
 
-hr {
-  border: none;
-  border-top: 1px solid #555;
-  margin: 10px 0;
+#compareBtn {
+  background: #0077ff;
+  margin-top: 15px;
 }
 
-/* Three.js Container */
-#container {
+/* Main view */
+#viewer {
   position: fixed;
   left: 220px;
   right: 0;
   top: 0;
   bottom: 0;
-  z-index: 1;
 }
 
-/* Slider */
-#slider {
+/* Compare overlay */
+#compare {
   position: fixed;
+  inset: 0;
+  background: white;
+  display: none;
+  z-index: 50;
+}
+
+#compareSidebar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 220px;
+  background: #222;
+  color: white;
+  padding: 15px;
+  box-sizing: border-box;
+  z-index: 60;
+}
+
+#compareView {
+  position: absolute;
+  left: 220px;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+#slider {
+  position: absolute;
   top: 0;
   left: 50%;
   width: 4px;
   height: 100%;
   background: red;
   cursor: ew-resize;
-  z-index: 50;
+  z-index: 55;
 }
 
 canvas {
@@ -73,22 +100,42 @@ canvas {
 
 <body>
 
+<!-- STARTSEITE -->
 <div id="sidebar">
-  <strong>Links</strong>
-  <button onclick="loadLeft('1150.glb')">1150</button>
-  <button onclick="loadLeft('1374.glb')">1374</button>
-  <button onclick="loadLeft('1630.glb')">1630</button>
+  <button onclick="loadMain('1150.glb')">1150</button>
+  <button onclick="loadMain('1175.glb')">1175</button>
+  <button onclick="loadMain('1374.glb')">1374</button>
+  <button onclick="loadMain('1550.glb')">1550</button>
+  <button onclick="loadMain('1630.glb')">1630</button>
+  <button onclick="loadMain('1936.glb')">1936</button>
 
-  <hr>
-
-  <strong>Rechts</strong>
-  <button onclick="loadRight('1175.glb')">1175</button>
-  <button onclick="loadRight('1550.glb')">1550</button>
-  <button onclick="loadRight('1936.glb')">1936</button>
+  <button id="compareBtn">Vergleichen</button>
 </div>
 
-<div id="container"></div>
-<div id="slider"></div>
+<div id="viewer"></div>
+
+<!-- VERGLEICH -->
+<div id="compare">
+  <div id="compareSidebar">
+    <strong>Links</strong>
+    <button onclick="loadLeft('1150.glb')">1150</button>
+    <button onclick="loadLeft('1374.glb')">1374</button>
+    <button onclick="loadLeft('1630.glb')">1630</button>
+
+    <hr>
+
+    <strong>Rechts</strong>
+    <button onclick="loadRight('1175.glb')">1175</button>
+    <button onclick="loadRight('1550.glb')">1550</button>
+    <button onclick="loadRight('1936.glb')">1936</button>
+
+    <hr>
+    <button onclick="closeCompare()">← Zurück</button>
+  </div>
+
+  <div id="compareView"></div>
+  <div id="slider"></div>
+</div>
 
 <script type="module" src="main.js"></script>
 </body>
