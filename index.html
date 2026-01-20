@@ -1,140 +1,126 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<title>3D Modellvergleich</title>
+  <meta charset="UTF-8" />
+  <title>GLB Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
 
-<style>
-html, body {
-  margin: 0;
-  height: 100%;
-  overflow: hidden;
-  font-family: Arial, sans-serif;
-}
+    #ui {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 200;
+    }
 
-/* Sidebar */
-#sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 220px;
-  background: #1e1e1e;
-  color: white;
-  padding: 20px;
-  box-sizing: border-box;
-  z-index: 10;
-}
+    button {
+      padding: 8px 12px;
+      margin: 4px 0;
+      cursor: pointer;
+    }
 
-button {
-  width: 100%;
-  margin-bottom: 8px;
-  padding: 10px;
-  border: none;
-  border-radius: 6px;
-  background: #333;
-  color: white;
-  cursor: pointer;
-}
+    /* ---------- START VIEW ---------- */
+    #mainView {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
 
-#compareBtn {
-  background: #0077ff;
-  margin-top: 15px;
-}
+    /* ---------- COMPARE MODE ---------- */
+    #compare {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+    }
 
-/* Main view */
-#viewer {
-  position: fixed;
-  left: 220px;
-  right: 0;
-  top: 0;
-  bottom: 0;
-}
+    #compareSidebar {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 220px;
+      background: #1e1e1e;
+      color: white;
+      padding: 10px;
+      z-index: 100;
+      pointer-events: auto;
+    }
 
-/* Compare overlay */
-#compare {
-  position: fixed;
-  inset: 0;
-  background: white;
-  display: none;
-  z-index: 50;
-}
+    #compareView {
+      position: absolute;
+      left: 220px;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 50;
+      pointer-events: auto;
+    }
 
-#compareSidebar {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 220px;
-  background: #222;
-  color: white;
-  padding: 15px;
-  box-sizing: border-box;
-  z-index: 60;
-}
+    .split {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+    }
 
-#compareView {
-  position: absolute;
-  left: 220px;
-  right: 0;
-  top: 0;
-  bottom: 0;
-}
+    #leftView {
+      left: 0;
+    }
 
-#slider {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 4px;
-  height: 100%;
-  background: red;
-  cursor: ew-resize;
-  z-index: 55;
-}
+    #rightView {
+      right: 0;
+    }
 
-canvas {
-  display: block;
-}
-</style>
+    .divider {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: red;
+      z-index: 90;
+      pointer-events: none;
+    }
+
+    h3 {
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+  </style>
 </head>
-
 <body>
 
-<!-- STARTSEITE -->
-<div id="sidebar">
-  <button onclick="loadMain('1150.glb')">1150</button>
-  <button onclick="loadMain('1175.glb')">1175</button>
-  <button onclick="loadMain('1374.glb')">1374</button>
-  <button onclick="loadMain('1550.glb')">1550</button>
-  <button onclick="loadMain('1630.glb')">1630</button>
-  <button onclick="loadMain('1936.glb')">1936</button>
-
-  <button id="compareBtn">Vergleichen</button>
+<div id="ui">
+  <button id="btnCompare">Vergleichen</button>
 </div>
 
-<div id="viewer"></div>
+<div id="mainView"></div>
 
-<!-- VERGLEICH -->
 <div id="compare">
   <div id="compareSidebar">
-    <strong>Links</strong>
-    <button onclick="loadLeft('1150.glb')">1150</button>
-    <button onclick="loadLeft('1374.glb')">1374</button>
-    <button onclick="loadLeft('1630.glb')">1630</button>
+    <button id="btnBack">← Zurück</button>
 
-    <hr>
+    <h3>Links</h3>
+    <button data-side="left" data-model="1150.glb">1150</button>
+    <button data-side="left" data-model="1374.glb">1374</button>
+    <button data-side="left" data-model="1630.glb">1630</button>
 
-    <strong>Rechts</strong>
-    <button onclick="loadRight('1175.glb')">1175</button>
-    <button onclick="loadRight('1550.glb')">1550</button>
-    <button onclick="loadRight('1936.glb')">1936</button>
-
-    <hr>
-    <button onclick="closeCompare()">← Zurück</button>
+    <h3>Rechts</h3>
+    <button data-side="right" data-model="1175.glb">1175</button>
+    <button data-side="right" data-model="1550.glb">1550</button>
+    <button data-side="right" data-model="1936.glb">1936</button>
   </div>
 
-  <div id="compareView"></div>
-  <div id="slider"></div>
+  <div id="compareView">
+    <div id="leftView" class="split"></div>
+    <div id="rightView" class="split"></div>
+    <div class="divider"></div>
+  </div>
 </div>
 
 <script type="module" src="main.js"></script>

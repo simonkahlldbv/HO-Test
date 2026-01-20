@@ -1,134 +1,104 @@
-import * as THREE from "https://unpkg.com/three@0.158.0/build/three.module.js";
-import { OrbitControls } from "https://unpkg.com/three@0.158.0/examples/jsm/controls/OrbitControls.js";
-import { GLTFLoader } from "https://unpkg.com/three@0.158.0/examples/jsm/loaders/GLTFLoader.js";
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
 
-/* ========= BASIC SETUP ========= */
 const loader = new GLTFLoader();
 
 /* ---------- MAIN VIEW ---------- */
-const mainContainer = document.getElementById("viewer");
 const mainScene = new THREE.Scene();
-mainScene.background = new THREE.Color(0xf0f0f0);
-
-const mainCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-mainCamera.position.set(0, 2, 6);
+const mainCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+mainCamera.position.set(0, 2, 4);
 
 const mainRenderer = new THREE.WebGLRenderer({ antialias: true });
-mainContainer.appendChild(mainRenderer.domElement);
+mainRenderer.setSize(window.innerWidth, window.innerHeight);
+document.getElementById("mainView").appendChild(mainRenderer.domElement);
 
 const mainControls = new OrbitControls(mainCamera, mainRenderer.domElement);
-mainControls.enableDamping = true;
 
-mainScene.add(new THREE.AmbientLight(0xffffff, 0.8));
-const mainLight = new THREE.DirectionalLight(0xffffff, 0.6);
-mainLight.position.set(5, 10, 5);
-mainScene.add(mainLight);
+mainScene.add(new THREE.AmbientLight(0xffffff, 1.2));
 
-let mainModel;
-window.loadMain = (src) => {
+let mainModel = null;
+
+function loadMainModel(file) {
   if (mainModel) mainScene.remove(mainModel);
-  loader.load(src, gltf => {
+  loader.load(file, gltf => {
     mainModel = gltf.scene;
     mainScene.add(mainModel);
   });
-};
+}
 
-loadMain("1150.glb");
+loadMainModel("1150.glb");
 
 /* ---------- COMPARE VIEW ---------- */
-const compare = document.getElementById("compare");
-const compareContainer = document.getElementById("compareView");
+function createCompare(container) {
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+  camera.position.set(0, 2, 4);
 
-const compareScene = new THREE.Scene();
-compareScene.background = new THREE.Color(0xf0f0f0);
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  container.appendChild(renderer.domElement);
 
-const compareCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-compareCamera.position.set(0, 2, 6);
+  const controls = new OrbitControls(camera, renderer.domElement);
+  scene.add(new THREE.AmbientLight(0xffffff, 1.2));
 
-const compareRenderer = new THREE.WebGLRenderer({ antialias: true });
-compareRenderer.localClippingEnabled = true;
-compareContainer.appendChild(compareRenderer.domElement);
+  let model = null;
 
-const compareControls = new OrbitControls(compareCamera, compareRenderer.domElement);
-compareControls.enableDamping = true;
-
-compareScene.add(new THREE.AmbientLight(0xffffff, 0.8));
-const cLight = new THREE.DirectionalLight(0xffffff, 0.6);
-cLight.position.set(5, 10, 5);
-compareScene.add(cLight);
-
-const leftGroup = new THREE.Group();
-const rightGroup = new THREE.Group();
-compareScene.add(leftGroup, rightGroup);
-
-const planeL = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
-const planeR = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
-
-function loadToGroup(group, src, plane) {
-  while (group.children.length) group.remove(group.children[0]);
-  loader.load(src, gltf => {
-    gltf.scene.traverse(m => {
-      if (m.isMesh) {
-        m.material = m.material.clone();
-        m.material.clippingPlanes = [plane];
-      }
-    });
-    group.add(gltf.scene);
-  });
+  return {
+    scene,
+    camera,
+    renderer,
+    controls,
+    load(file) {
+      if (model) scene.remove(model);
+      loader.load(file, gltf => {
+        model = gltf.scene;
+        scene.add(model);
+      });
+    }
+  };
 }
 
-window.loadLeft = src => loadToGroup(leftGroup, src, planeL);
-window.loadRight = src => loadToGroup(rightGroup, src, planeR);
+const left = createCompare(document.getElementById("leftView"));
+const right = createCompare(document.getElementById("rightView"));
 
 /* ---------- UI ---------- */
-document.getElementById("compareBtn").onclick = () => {
-  compare.style.display = "block";
-  loadLeft("1150.glb");
-  loadRight("1936.glb");
+document.getElementById("btnCompare").onclick = () => {
+  document.getElementById("mainView").style.display = "none";
+  document.getElementById("compare").style.display = "block";
 };
 
-window.closeCompare = () => {
-  compare.style.display = "none";
+document.getElementById("btnBack").onclick = () => {
+  document.getElementById("compare").style.display = "none";
+  document.getElementById("mainView").style.display = "block";
 };
 
-/* ---------- SLIDER ---------- */
-const slider = document.getElementById("slider");
-let drag = false;
-
-slider.onmousedown = () => drag = true;
-window.onmouseup = () => drag = false;
-
-window.onmousemove = e => {
-  if (!drag) return;
-  const x = Math.max(240, Math.min(window.innerWidth - 20, e.clientX));
-  slider.style.left = x + "px";
-  const ratio = (x - 220) / (window.innerWidth - 220);
-  planeL.constant = -ratio * 5;
-  planeR.constant = ratio * 5;
-};
-
-/* ---------- RESIZE ---------- */
-function resize(renderer, camera, container) {
-  const w = container.clientWidth;
-  const h = container.clientHeight;
-  renderer.setSize(w, h);
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-}
-
-window.addEventListener("resize", () => {
-  resize(mainRenderer, mainCamera, mainContainer);
-  resize(compareRenderer, compareCamera, compareContainer);
+document.querySelectorAll("button[data-model]").forEach(btn => {
+  btn.onclick = () => {
+    const side = btn.dataset.side;
+    const model = btn.dataset.model;
+    side === "left" ? left.load(model) : right.load(model);
+  };
 });
 
-/* ---------- LOOP ---------- */
+/* ---------- RENDER LOOP ---------- */
 function animate() {
   requestAnimationFrame(animate);
+
   mainControls.update();
-  compareControls.update();
-  resize(mainRenderer, mainCamera, mainContainer);
-  resize(compareRenderer, compareCamera, compareContainer);
   mainRenderer.render(mainScene, mainCamera);
-  compareRenderer.render(compareScene, compareCamera);
+
+  left.controls.update();
+  right.controls.update();
+
+  left.renderer.render(left.scene, left.camera);
+  right.renderer.render(right.scene, right.camera);
 }
+
 animate();
+
+window.addEventListener("resize", () => {
+  mainCamera.aspect = window.innerWidth / window.innerHeight;
+  mainCamera.updateProjectionMatrix();
+  mainRenderer.setSize(window.innerWidth, window.innerHeight);
+});
