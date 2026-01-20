@@ -32,19 +32,19 @@ button {
   width: 100%;
   margin-bottom: 8px;
   padding: 10px;
-  border: none;
   border-radius: 6px;
-  cursor: pointer;
+  border: none;
   background: #333;
   color: white;
+  cursor: pointer;
 }
 
 #compare-btn {
-  margin-top: 20px;
   background: #0077ff;
+  margin-top: 20px;
 }
 
-/* Main view */
+/* Main */
 #main {
   position: fixed;
   left: 220px;
@@ -65,6 +65,7 @@ button {
   inset: 0;
   background: white;
   display: none;
+  z-index: 10;
 }
 
 .compare-viewer {
@@ -85,15 +86,30 @@ button {
   height: 100%;
   background: red;
   cursor: ew-resize;
+  z-index: 20;
 }
 
 #back {
   position: absolute;
   top: 10px;
   left: 10px;
-  z-index: 10;
+  z-index: 30;
   background: black;
 }
+
+/* Compare selectors */
+.selector {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 30;
+}
+
+#leftSel { left: 20px; }
+#rightSel { right: 20px; }
 
 model-viewer::part(default-controls) {
   display: none;
@@ -131,13 +147,25 @@ model-viewer::part(default-controls) {
     interaction-prompt="none">
   </model-viewer>
 
-  <!-- PASSIVER MITLÄUFER -->
+  <!-- PASSIVER VIEWER -->
   <model-viewer id="mvB"
     class="compare-viewer"
     interaction-prompt="none">
   </model-viewer>
 
   <div id="slider"></div>
+
+  <div id="leftSel" class="selector">
+    <button onclick="setLeft('1150.glb')">1150</button>
+    <button onclick="setLeft('1175.glb')">1175</button>
+    <button onclick="setLeft('1374.glb')">1374</button>
+  </div>
+
+  <div id="rightSel" class="selector">
+    <button onclick="setRight('1550.glb')">1550</button>
+    <button onclick="setRight('1630.glb')">1630</button>
+    <button onclick="setRight('1936.glb')">1936</button>
+  </div>
 </div>
 
 <script src="compare.js"></script>
