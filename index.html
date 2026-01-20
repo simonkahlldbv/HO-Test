@@ -2,11 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>3D Modellvergleich</title>
-
-<script type="module"
-  src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-</script>
+<title>Three.js 3D Vergleich</title>
 
 <style>
 html, body {
@@ -26,93 +22,40 @@ html, body {
   background: #1e1e1e;
   color: white;
   padding: 20px;
+  box-sizing: border-box;
+  z-index: 10;
 }
 
 button {
   width: 100%;
   margin-bottom: 8px;
   padding: 10px;
-  border-radius: 6px;
   border: none;
+  border-radius: 6px;
   background: #333;
   color: white;
   cursor: pointer;
 }
 
-#compare-btn {
-  background: #0077ff;
-  margin-top: 20px;
-}
-
-/* Main */
-#main {
+/* Scene */
+#container {
   position: fixed;
   left: 220px;
   right: 0;
   top: 0;
   bottom: 0;
-  background: #eee;
 }
 
-#main model-viewer {
-  width: 100%;
-  height: 100%;
-}
-
-/* Compare */
-#compare {
-  position: fixed;
-  inset: 0;
-  background: white;
-  display: none;
-  z-index: 10;
-}
-
-.compare-viewer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-#mvA { clip-path: inset(0 50% 0 0); }
-#mvB { clip-path: inset(0 0 0 50%); }
-
+/* Slider */
 #slider {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 50%;
   width: 4px;
   height: 100%;
   background: red;
   cursor: ew-resize;
-  z-index: 20;
-}
-
-#back {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 30;
-  background: black;
-}
-
-/* Compare selectors */
-.selector {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  z-index: 30;
-}
-
-#leftSel { left: 20px; }
-#rightSel { right: 20px; }
-
-model-viewer::part(default-controls) {
-  display: none;
+  z-index: 5;
 }
 </style>
 </head>
@@ -120,54 +63,20 @@ model-viewer::part(default-controls) {
 <body>
 
 <div id="sidebar">
-  <button onclick="setMain('1150.glb')">1150</button>
-  <button onclick="setMain('1175.glb')">1175</button>
-  <button onclick="setMain('1374.glb')">1374</button>
-  <button onclick="setMain('1550.glb')">1550</button>
-  <button onclick="setMain('1630.glb')">1630</button>
-  <button onclick="setMain('1936.glb')">1936</button>
-  <button id="compare-btn">Vergleichen</button>
+  <button onclick="loadLeft('1150.glb')">Links 1150</button>
+  <button onclick="loadLeft('1374.glb')">Links 1374</button>
+  <button onclick="loadLeft('1630.glb')">Links 1630</button>
+
+  <hr>
+
+  <button onclick="loadRight('1175.glb')">Rechts 1175</button>
+  <button onclick="loadRight('1550.glb')">Rechts 1550</button>
+  <button onclick="loadRight('1936.glb')">Rechts 1936</button>
 </div>
 
-<div id="main">
-  <model-viewer id="mainModel"
-    src="1150.glb"
-    camera-controls
-    interaction-prompt="none">
-  </model-viewer>
-</div>
+<div id="container"></div>
+<div id="slider"></div>
 
-<div id="compare">
-  <button id="back">← Zurück</button>
-
-  <!-- EINZIGE KAMERA -->
-  <model-viewer id="mvA"
-    class="compare-viewer"
-    camera-controls
-    interaction-prompt="none">
-  </model-viewer>
-
-  <!-- PASSIVER VIEWER -->
-  <model-viewer id="mvB"
-    class="compare-viewer"
-    interaction-prompt="none">
-  </model-viewer>
-
-  <div id="slider"></div>
-
-  <div id="leftSel" class="selector">
-    <button onclick="setLeft('1150.glb')">1150</button>
-    <button onclick="setLeft('1175.glb')">1175</button>
-    <button onclick="setLeft('1374.glb')">1374</button>
-  </div>
-
-  <div id="rightSel" class="selector">
-    <button onclick="setRight('1550.glb')">1550</button>
-    <button onclick="setRight('1630.glb')">1630</button>
-    <button onclick="setRight('1936.glb')">1936</button>
-  </div>
-</div>
-
-<script src="compare.js"></script>
+<script type="module" src="main.js"></script>
 </body>
 </html>
