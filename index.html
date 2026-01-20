@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Three.js 3D Vergleich</title>
+<title>3D Modellvergleich – Three.js</title>
 
 <style>
 html, body {
@@ -23,7 +23,7 @@ html, body {
   color: white;
   padding: 20px;
   box-sizing: border-box;
-  z-index: 10;
+  z-index: 100; /* 🔥 wichtig */
 }
 
 button {
@@ -37,13 +37,20 @@ button {
   cursor: pointer;
 }
 
-/* Scene */
+hr {
+  border: none;
+  border-top: 1px solid #555;
+  margin: 10px 0;
+}
+
+/* Three.js Container */
 #container {
   position: fixed;
   left: 220px;
   right: 0;
   top: 0;
   bottom: 0;
+  z-index: 1;
 }
 
 /* Slider */
@@ -55,7 +62,11 @@ button {
   height: 100%;
   background: red;
   cursor: ew-resize;
-  z-index: 5;
+  z-index: 50;
+}
+
+canvas {
+  display: block;
 }
 </style>
 </head>
@@ -63,15 +74,17 @@ button {
 <body>
 
 <div id="sidebar">
-  <button onclick="loadLeft('1150.glb')">Links 1150</button>
-  <button onclick="loadLeft('1374.glb')">Links 1374</button>
-  <button onclick="loadLeft('1630.glb')">Links 1630</button>
+  <strong>Links</strong>
+  <button onclick="loadLeft('1150.glb')">1150</button>
+  <button onclick="loadLeft('1374.glb')">1374</button>
+  <button onclick="loadLeft('1630.glb')">1630</button>
 
   <hr>
 
-  <button onclick="loadRight('1175.glb')">Rechts 1175</button>
-  <button onclick="loadRight('1550.glb')">Rechts 1550</button>
-  <button onclick="loadRight('1936.glb')">Rechts 1936</button>
+  <strong>Rechts</strong>
+  <button onclick="loadRight('1175.glb')">1175</button>
+  <button onclick="loadRight('1550.glb')">1550</button>
+  <button onclick="loadRight('1936.glb')">1936</button>
 </div>
 
 <div id="container"></div>

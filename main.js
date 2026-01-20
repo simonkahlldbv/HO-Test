@@ -2,12 +2,14 @@ import * as THREE from "https://unpkg.com/three@0.158.0/build/three.module.js";
 import { OrbitControls } from "https://unpkg.com/three@0.158.0/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "https://unpkg.com/three@0.158.0/examples/jsm/loaders/GLTFLoader.js";
 
+/* Container */
 const container = document.getElementById("container");
 
 /* Renderer */
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(container.clientWidth, container.clientHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
+renderer.localClippingEnabled = true;
 container.appendChild(renderer.domElement);
 
 /* Scene */
@@ -21,9 +23,9 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.set(0, 2, 5);
+camera.position.set(0, 2, 6);
 
-/* Controls (EINE Kamera für ALLES) */
+/* Controls – EINE Kamera */
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
@@ -39,30 +41,12 @@ const rightGroup = new THREE.Group();
 scene.add(leftGroup);
 scene.add(rightGroup);
 
-/* Loader */
-const loader = new GLTFLoader();
-
-/* Clipping (Split View) */
-renderer.localClippingEnabled = true;
+/* Clipping Planes */
 const planeLeft = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
 const planeRight = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
 
-/* Loaders */
-window.loadLeft = (src) => {
-  clearGroup(leftGroup);
-  loader.load(src, gltf => {
-    applyClipping(gltf.scene, [planeLeft]);
-    leftGroup.add(gltf.scene);
-  });
-};
-
-window.loadRight = (src) => {
-  clearGroup(rightGroup);
-  loader.load(src, gltf => {
-    applyClipping(gltf.scene, [planeRight]);
-    rightGroup.add(gltf.scene);
-  });
-};
+/* Loader */
+const loader = new GLTFLoader();
 
 /* Helpers */
 function clearGroup(group) {
@@ -81,7 +65,24 @@ function applyClipping(obj, planes) {
   });
 }
 
-/* Initial */
+/* GLOBAL – für HTML Buttons */
+window.loadLeft = (src) => {
+  clearGroup(leftGroup);
+  loader.load(src, gltf => {
+    applyClipping(gltf.scene, [planeLeft]);
+    leftGroup.add(gltf.scene);
+  });
+};
+
+window.loadRight = (src) => {
+  clearGroup(rightGroup);
+  loader.load(src, gltf => {
+    applyClipping(gltf.scene, [planeRight]);
+    rightGroup.add(gltf.scene);
+  });
+};
+
+/* Initiale Modelle */
 loadLeft("1150.glb");
 loadRight("1936.glb");
 
@@ -94,11 +95,15 @@ window.onmouseup = () => dragging = false;
 
 window.onmousemove = e => {
   if (!dragging) return;
-  const x = Math.max(250, Math.min(window.innerWidth - 50, e.clientX));
+
+  const minX = 240;
+  const maxX = window.innerWidth - 20;
+  const x = Math.max(minX, Math.min(maxX, e.clientX));
   slider.style.left = x + "px";
-  const offset = (x - 220) / (window.innerWidth - 220);
-  planeLeft.constant = -offset * 5;
-  planeRight.constant = offset * 5;
+
+  const ratio = (x - 220) / (window.innerWidth - 220);
+  planeLeft.constant = -ratio * 5;
+  planeRight.constant = ratio * 5;
 };
 
 /* Resize */
@@ -110,7 +115,7 @@ window.addEventListener("resize", () => {
   renderer.setSize(w, h);
 });
 
-/* Render Loop */
+/* Loop */
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
