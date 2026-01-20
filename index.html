@@ -242,18 +242,19 @@ window.onmousemove = e => {
   mvB.style.clipPath = `inset(0 0 0 ${pct}%)`;
 };
 
-/* === BIDIREKTIONALE SYNCHRONISIERUNG === */
+/* === BIDIREKTIONALE KAMERA-SYNCHRONISIERUNG === */
 let syncing = false;
 
-function sync(from, to) {
+function syncCamera(from, to) {
   if (syncing) return;
   syncing = true;
+
+  to.cameraOrbit  = from.cameraOrbit;
+  to.cameraTarget = from.cameraTarget;
+  to.fieldOfView  = from.fieldOfView;
+
   requestAnimationFrame(() => syncing = false);
 }
 
-mvA.addEventListener("camera-change", () => sync(mvA, mvB));
-mvB.addEventListener("camera-change", () => sync(mvB, mvA));
-</script>
-
-</body>
-</html>
+mvA.addEventListener("camera-change", () => syncCamera(mvA, mvB));
+mvB.addEventListener("camera-change", () => syncCamera(mvB, mvA));
