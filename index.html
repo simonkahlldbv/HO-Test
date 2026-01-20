@@ -227,10 +227,12 @@ document.getElementById("compare-btn").onclick = () => {
 
   mvA.addEventListener("load", () => {
     mvA.cameraOrbit = initialOrbit;
+    mvA.cameraTarget = "0m 0m 0m";
   }, { once: true });
 
   mvB.addEventListener("load", () => {
     mvB.cameraOrbit = initialOrbit;
+    mvB.cameraTarget = "0m 0m 0m";
   }, { once: true });
 };
 
@@ -251,23 +253,20 @@ window.onmousemove = e => {
   mvB.style.clipPath = `inset(0 0 0 ${pct}%)`;
 };
 
-/* === STABILE BIDIREKTIONALE KAMERA-SYNC === */
-let syncing = false;
+/* =======================================================
+    STABILE KAMERA-SYNCHRONISIERUNG (MASTER → SLAVE)
+   ======================================================= */
 
-function syncCamera(from, to) {
-  if (syncing) return;
+/*  Wähle EINEN Master (hier mvA) */
+mvB.style.pointerEvents = "none"; // mvB ist IMMER Slave
+
+mvA.addEventListener("camera-change", () => {
   if (!mvAReady || !mvBReady) return;
 
-  syncing = true;
-  to.cameraOrbit  = from.cameraOrbit;
-  to.cameraTarget = from.cameraTarget;
-  to.fieldOfView  = from.fieldOfView;
-
-  requestAnimationFrame(() => syncing = false);
-}
-
-mvA.addEventListener("camera-change", () => syncCamera(mvA, mvB));
-mvB.addEventListener("camera-change", () => syncCamera(mvB, mvA));
+  mvB.cameraOrbit  = mvA.cameraOrbit;
+  mvB.cameraTarget = mvA.cameraTarget;
+  mvB.fieldOfView  = mvA.fieldOfView;
+});
 </script>
 
 </body>
