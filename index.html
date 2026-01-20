@@ -16,64 +16,83 @@ html, body {
   font-family: Arial, sans-serif;
 }
 
+/* Sidebar */
+#sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 220px;
+  background: #1e1e1e;
+  color: white;
+  padding: 20px;
+}
+
+button {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #333;
+  color: white;
+}
+
+#compare-btn {
+  margin-top: 20px;
+  background: #0077ff;
+}
+
+/* Main view */
+#main {
+  position: fixed;
+  left: 220px;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: #eee;
+}
+
+#main model-viewer {
+  width: 100%;
+  height: 100%;
+}
+
+/* Compare */
 #compare {
   position: fixed;
   inset: 0;
   background: white;
+  display: none;
 }
 
-/* Viewer */
-#container {
-  position: absolute;
-  inset: 0;
-}
-
-model-viewer {
+.compare-viewer {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  --poster-color: transparent;
 }
 
-/* clipping */
 #mvA { clip-path: inset(0 50% 0 0); }
 #mvB { clip-path: inset(0 0 0 50%); }
 
-/* slider */
 #slider {
   position: absolute;
   top: 0;
   left: 50%;
-  width: 5px;
+  width: 4px;
   height: 100%;
   background: red;
-  transform: translateX(-50%);
   cursor: ew-resize;
-  z-index: 10;
 }
 
-/* buttons */
-.selector {
+#back {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 20;
-}
-
-#left { left: 20px; }
-#right { right: 20px; }
-
-.selector button {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  background: #222;
-  color: white;
-  cursor: pointer;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  background: black;
 }
 
 model-viewer::part(default-controls) {
@@ -84,43 +103,41 @@ model-viewer::part(default-controls) {
 
 <body>
 
-<div id="compare">
-  <div id="container">
-    <!-- EINZIGE KAMERA -->
-    <model-viewer id="mvA"
-      src="1150.glb"
-      camera-controls
-      interaction-prompt="none">
-    </model-viewer>
-
-    <!-- PASSIVER VIEWER -->
-    <model-viewer id="mvB"
-      src="1936.glb"
-      interaction-prompt="none">
-    </model-viewer>
-  </div>
-
-  <div id="slider"></div>
-
-  <div id="left" class="selector">
-    <button onclick="setLeft('1150.glb')">1150</button>
-    <button onclick="setLeft('1175.glb')">1175</button>
-    <button onclick="setLeft('1374.glb')">1374</button>
-    <button onclick="setLeft('1550.glb')">1550</button>
-    <button onclick="setLeft('1630.glb')">1630</button>
-    <button onclick="setLeft('1936.glb')">1936</button>
-  </div>
-
-  <div id="right" class="selector">
-    <button onclick="setRight('1150.glb')">1150</button>
-    <button onclick="setRight('1175.glb')">1175</button>
-    <button onclick="setRight('1374.glb')">1374</button>
-    <button onclick="setRight('1550.glb')">1550</button>
-    <button onclick="setRight('1630.glb')">1630</button>
-    <button onclick="setRight('1936.glb')">1936</button>
-  </div>
+<div id="sidebar">
+  <button onclick="setMain('1150.glb')">1150</button>
+  <button onclick="setMain('1175.glb')">1175</button>
+  <button onclick="setMain('1374.glb')">1374</button>
+  <button onclick="setMain('1550.glb')">1550</button>
+  <button onclick="setMain('1630.glb')">1630</button>
+  <button onclick="setMain('1936.glb')">1936</button>
+  <button id="compare-btn">Vergleichen</button>
 </div>
 
-<script src="compare-sync.js"></script>
+<div id="main">
+  <model-viewer id="mainModel"
+    src="1150.glb"
+    camera-controls
+    interaction-prompt="none">
+  </model-viewer>
+</div>
+
+<div id="compare">
+  <button id="back">← Zurück</button>
+
+  <model-viewer id="mvA"
+    class="compare-viewer"
+    camera-controls
+    interaction-prompt="none">
+  </model-viewer>
+
+  <model-viewer id="mvB"
+    class="compare-viewer"
+    interaction-prompt="none">
+  </model-viewer>
+
+  <div id="slider"></div>
+</div>
+
+<script src="compare.js"></script>
 </body>
 </html>
